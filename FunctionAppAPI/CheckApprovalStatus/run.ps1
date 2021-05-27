@@ -3,9 +3,23 @@ using namespace System.Net
 # Input bindings are passed in via param block.
 param($Request, $TriggerMetadata)
 
+# Get Authorization Header and Split to get Header Vakue
+$authHeader = $Request.Headers.Authorization
+If ($authHeader) {
+    $authValue = $authHeader.Split(" ")
+
+    # If Basic Authentication, Get and Decode Base64 String
+    If ($authValue[0] = "Basic") {
+        $decodedCreds = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($authValue[1]))
+        $basicCreds = $decodedCreds.Split(":")
+        Write-Host "UserName: " $basicCreds[0]
+        Write-Host "Password: " $basicCreds[1]
+        # Optional add logic to verify basic credentials to proceed:::
+    }
+}
+
 # Write to the Azure Functions log stream.
 Write-Host "PowerShell HTTP trigger function processed a request for Checking Approval Status for External Identities Self Service Sign-up."
-
 
 # For Debugging Purpose, list the complete Request Body received by the API
 $Request.Body | ConvertTo-Json
